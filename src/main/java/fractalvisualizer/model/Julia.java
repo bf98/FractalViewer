@@ -1,10 +1,5 @@
 package fractalvisualizer.model;
 
- 
-
-
-
-
 public class Julia extends Fractal {
 
     private Complex c;
@@ -33,6 +28,11 @@ public class Julia extends Fractal {
 
     public void setC(Complex c) {
         this.c = c;
+    }
+
+    @Override
+    public Fractal copy() {
+        return new Julia(getMaxIterations(), c);
     }
 
     @Override

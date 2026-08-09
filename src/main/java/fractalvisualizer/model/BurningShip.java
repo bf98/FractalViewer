@@ -1,10 +1,5 @@
 package fractalvisualizer.model;
 
- 
-
-
-
-
 public class BurningShip extends Fractal {
 
     public BurningShip(int maxIterations) {
@@ -23,6 +18,11 @@ public class BurningShip extends Fractal {
         }
 
         return iterations;
+    }
+
+    @Override
+    public Fractal copy() {
+        return new BurningShip(getMaxIterations());
     }
 
     @Override

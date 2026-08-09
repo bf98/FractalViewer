@@ -2,11 +2,6 @@ package fractalvisualizer.model;
 
 import javafx.scene.paint.Color;
 
- 
-
-
-
-
 public class RainbowPalette extends ColorPalette {
 
     @Override
@@ -16,6 +11,11 @@ public class RainbowPalette extends ColorPalette {
         }
         double hue = 360.0 * ((double) iterations / maxIterations);
         return Color.hsb(hue, 0.8, 1.0);
+    }
+
+    @Override
+    public ColorPalette copy() {
+        return new RainbowPalette();
     }
 
     @Override

@@ -1,11 +1,6 @@
 package fractalvisualizer.model;
 
- 
-
-
-
-
-
+/** base comune frattali */
 public abstract class Fractal {
 
     private int maxIterations;
@@ -16,14 +11,12 @@ public abstract class Fractal {
         this.escapeRadius = escapeRadius;
     }
 
-     
-
-
-
-
-
-
-
+    /**
+     * Calcola le iterazioni per un punto.
+     *
+     * @param c punto da controllare
+     * @return numero iterazioni
+     */
     public abstract int computeIterations(Complex c);
 
     public int getMaxIterations() {
@@ -41,8 +34,8 @@ public abstract class Fractal {
         return escapeRadius * escapeRadius;
     }
 
-     
+    public abstract Fractal copy();
 
-
+    /** restituisce nome frattale */
     public abstract String getName();
 }

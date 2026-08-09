@@ -1,9 +1,5 @@
 package fractalvisualizer.model;
 
- 
-
-
-
 public class Mandelbrot extends Fractal {
 
     public Mandelbrot(int maxIterations) {
@@ -21,6 +17,11 @@ public class Mandelbrot extends Fractal {
         }
 
         return iterations;
+    }
+
+    @Override
+    public Fractal copy() {
+        return new Mandelbrot(getMaxIterations());
     }
 
     @Override

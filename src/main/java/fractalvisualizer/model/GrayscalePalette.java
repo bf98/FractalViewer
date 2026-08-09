@@ -2,11 +2,6 @@ package fractalvisualizer.model;
 
 import javafx.scene.paint.Color;
 
- 
-
-
-
-
 public class GrayscalePalette extends ColorPalette {
 
     @Override
@@ -16,6 +11,11 @@ public class GrayscalePalette extends ColorPalette {
         }
         double brightness = (double) iterations / maxIterations;
         return Color.gray(brightness);
+    }
+
+    @Override
+    public ColorPalette copy() {
+        return new GrayscalePalette();
     }
 
     @Override
