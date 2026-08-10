@@ -17,6 +17,11 @@ class FractalRendererTest {
             }
 
             @Override
+            public Fractal copy() {
+                return this;
+            }
+
+            @Override
             public String getName() {
                 return "Fake fractal";
             }
@@ -28,6 +33,11 @@ class FractalRendererTest {
                 assertEquals(5, iterations);
                 assertEquals(10, maxIterations);
                 return Color.RED;
+            }
+
+            @Override
+            public ColorPalette copy() {
+                return this;
             }
 
             @Override
