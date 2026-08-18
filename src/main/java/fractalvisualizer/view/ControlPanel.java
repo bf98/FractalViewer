@@ -15,10 +15,6 @@ import java.io.IOException;
 
 
 
-
-
-
-
 public class ControlPanel {
 
     private final VBox pane;
@@ -48,20 +44,33 @@ public class ControlPanel {
             iterationsLabel.setText("Iterazioni: " + value);
             controller.onMaxIterationsChanged(value);
         });
+
          
         iterationsSlider.setOnMouseReleased(e -> mainView.redraw());
 
         Button exportButton = new Button("Esporta PNG");
         exportButton.setOnAction(e -> handleExport(controller, mainView, exportButton));
 
+        Button resetButton = new Button("Reset Zoom");
+        resetButton.setOnAction(e -> handleResetZoom(controller, mainView, resetButton));
+
         pane = new VBox(12,
                 new Label("Frattale"), fractalSelector,
                 new Label("Palette"), paletteSelector,
                 iterationsLabel, iterationsSlider,
-                exportButton);
+                exportButton,
+								resetButton);
         pane.setPrefWidth(200);
         pane.setStyle("-fx-padding: 16;");
     }
+
+		private void handleResetZoom(FractalController controller, MainView mainView, Button resetButton) {
+			 
+			controller.getViewport().resetZoom();
+			controller.getViewport().setCenterX(-0.5);
+			controller.getViewport().setCenterY(0);
+			mainView.redraw();
+		}
 
     private void handleExport(FractalController controller, MainView mainView, Button exportButton) {
         FileChooser fileChooser = new FileChooser();
@@ -69,14 +78,33 @@ public class ControlPanel {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG", "*.png"));
         File file = fileChooser.showSaveDialog(exportButton.getScene().getWindow());
         if (file == null) {
-            return;  
+            return;
         }
+
+         
+         
+        WritableImage currentImage = mainView.getCurrentImage();
+        if (currentImage == null) {
+            Alert alert = new Alert(
+                    Alert.AlertType.INFORMATION,
+                    "Il primo rendering non e' ancora terminato. Riprova tra poco.",
+                    ButtonType.OK
+            );
+            alert.setHeaderText("Nessun frame disponibile");
+            alert.showAndWait();
+            return;
+        }
+
         try {
-            WritableImage currentImage = controller.renderCurrentFrame();
             controller.onExportRequested(currentImage, file);
         } catch (IOException ex) {
-             
-            ex.printStackTrace();
+            Alert alert = new Alert(
+                    Alert.AlertType.ERROR,
+                    "Impossibile esportare l'immagine: " + ex.getMessage(),
+                    ButtonType.OK
+            );
+            alert.setHeaderText("Errore di esportazione");
+            alert.showAndWait();
         }
     }
 

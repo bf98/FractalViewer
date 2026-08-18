@@ -1,14 +1,17 @@
 package fractalvisualizer.controller;
 
 import fractalvisualizer.model.*;
+import javafx.concurrent.Task;
 import javafx.scene.image.WritableImage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
  
-
-
 
 
 
@@ -22,10 +25,32 @@ public class FractalController {
     private final Viewport viewport;
     private final ExportManager exportManager;
 
+     
+
+
+
+    private final ThreadPoolExecutor renderExecutor;
+
+    private Task<RenderResult> currentTask;
+    private long renderGeneration = 0;
+
     public FractalController(FractalRenderer renderer, Viewport viewport, ExportManager exportManager) {
         this.renderer = renderer;
         this.viewport = viewport;
         this.exportManager = exportManager;
+
+        this.renderExecutor = new ThreadPoolExecutor(
+                1,
+                1,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(),
+                runnable -> {
+                    Thread thread = new Thread(runnable, "fractal-render-thread");
+                    thread.setDaemon(true);
+                    return thread;
+                }
+        );
     }
 
      
@@ -33,31 +58,108 @@ public class FractalController {
 
 
     public WritableImage renderCurrentFrame() {
-        return renderer.renderFrame(viewport, viewport.getCanvasWidth(), viewport.getCanvasHeight());
+        return renderer.renderFrame(
+                viewport,
+                viewport.getCanvasWidth(),
+                viewport.getCanvasHeight()
+        );
+    }
+
+     
+
+
+
+
+
+
+
+
+
+
+    public void renderCurrentFrameAsync(
+            Consumer<WritableImage> onSuccess,
+            Consumer<Throwable> onError
+    ) {
+        cancelPreviousRendering();
+
+        long generation = ++renderGeneration;
+
+        Viewport viewportSnapshot = viewport.copy();
+        FractalRenderer rendererSnapshot = new FractalRenderer(
+                renderer.getFractal().copy(),
+                renderer.getPalette().copy()
+        );
+
+        int width = viewportSnapshot.getCanvasWidth();
+        int height = viewportSnapshot.getCanvasHeight();
+
+        Task<RenderResult> task = new Task<>() {
+            @Override
+            protected RenderResult call() {
+                return rendererSnapshot.renderPixels(
+                        viewportSnapshot,
+                        width,
+                        height,
+                        this::isCancelled
+                );
+            }
+        };
+
+        currentTask = task;
+
+        task.setOnSucceeded(event -> {
+             
+            if (generation != renderGeneration) {
+                return;
+            }
+
+            RenderResult result = task.getValue();
+            if (result == null) {
+                return;
+            }
+
+            WritableImage image = FractalRenderer.toWritableImage(result);
+            onSuccess.accept(image);
+        });
+
+        task.setOnFailed(event -> {
+            if (generation != renderGeneration) {
+                return;
+            }
+
+            Throwable exception = task.getException();
+            if (onError != null && exception != null) {
+                onError.accept(exception);
+            }
+        });
+
+        renderExecutor.execute(task);
+    }
+
+     
+
+
+
+
+    private void cancelPreviousRendering() {
+        if (currentTask != null && !currentTask.isDone()) {
+            currentTask.cancel(true);
+        }
+
+        renderExecutor.getQueue().clear();
     }
 
     public void onScroll(int px, int py, double deltaY) {
-         
-				if (deltaY == 0) {
-					return;
-				}
+        if (deltaY == 0) {
+            return;
+        }
 
-				double factor;
-
-				if (deltaY > 0) {
-					factor = 1.1;
-				}
-				else {
-					factor = 1.0 / 1.1;
-				}
-
+        double factor = deltaY > 0 ? 1.1 : 1.0 / 1.1;
         viewport.zoomAt(px, py, factor);
-         
     }
 
     public void onMouseDrag(double dx, double dy) {
         viewport.pan(dx, dy);
-         
     }
 
     public void onFractalSelected(FractalType type) {
@@ -84,6 +186,15 @@ public class FractalController {
 
     public void onExportRequested(WritableImage currentImage, File targetFile) throws IOException {
         exportManager.exportToPNG(currentImage, targetFile);
+    }
+
+     
+
+
+    public void shutdown() {
+        ++renderGeneration;
+        cancelPreviousRendering();
+        renderExecutor.shutdownNow();
     }
 
     public Viewport getViewport() {

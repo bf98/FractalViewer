@@ -13,12 +13,15 @@ import javafx.scene.input.ScrollEvent;
 
 
 
+
+
 public class MainView {
 
     private final FractalController controller;
     private final Canvas canvas;
     private double lastDragX;
     private double lastDragY;
+    private WritableImage currentImage;
 
     public MainView(FractalController controller, int width, int height) {
         this.controller = controller;
@@ -33,7 +36,17 @@ public class MainView {
     }
 
     private void handleScroll(ScrollEvent event) {
-        controller.onScroll((int) event.getX(), (int) event.getY(), event.getDeltaY());
+        double deltaY = event.getDeltaY();
+
+         
+         
+        if (Math.abs(deltaY) < 1e-9) {
+            event.consume();
+            return;
+        }
+
+        controller.onScroll((int) event.getX(), (int) event.getY(), deltaY);
+        event.consume();
         redraw();
     }
 
@@ -55,14 +68,27 @@ public class MainView {
 
 
 
-
-
-
-
     public void redraw() {
-        WritableImage image = controller.renderCurrentFrame();
+        controller.renderCurrentFrameAsync(
+                this::drawImage,
+                Throwable::printStackTrace
+        );
+    }
+
+    private void drawImage(WritableImage image) {
+        currentImage = image;
+
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc.drawImage(image, 0, 0);
+    }
+
+     
+
+
+
+    public WritableImage getCurrentImage() {
+        return currentImage;
     }
 
     public Canvas getCanvas() {

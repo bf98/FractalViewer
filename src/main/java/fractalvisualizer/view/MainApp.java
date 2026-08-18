@@ -10,16 +10,16 @@ import javafx.stage.Stage;
  
 
 
-
-
 public class MainApp extends Application {
 
 		 
-		 
-		 
-    private static final int CANVAS_WIDTH = 800;
-    private static final int CANVAS_HEIGHT = 600;
-    private static final int DEFAULT_MAX_ITERATIONS = 500;
+     
+     
+    private static final int CANVAS_WIDTH = 1280;
+    private static final int CANVAS_HEIGHT = 728;
+    private static final int DEFAULT_MAX_ITERATIONS = 800;
+
+    private FractalController controller;
 
     @Override
     public void start(Stage stage) {
@@ -31,7 +31,7 @@ public class MainApp extends Application {
         ExportManager exportManager = new ExportManager();
 
          
-        FractalController controller = new FractalController(renderer, viewport, exportManager);
+        controller = new FractalController(renderer, viewport, exportManager);
 
          
         MainView mainView = new MainView(controller, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -48,6 +48,13 @@ public class MainApp extends Application {
 
          
         mainView.redraw();
+    }
+
+    @Override
+    public void stop() {
+        if (controller != null) {
+            controller.shutdown();
+        }
     }
 
     public static void main(String[] args) {
