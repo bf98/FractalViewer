@@ -10,6 +10,7 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.Integer;
 
  
 
@@ -54,15 +55,38 @@ public class ControlPanel {
         Button resetButton = new Button("Reset Zoom");
         resetButton.setOnAction(e -> handleResetZoom(controller, mainView, resetButton));
 
+				TextField resWidth = new TextField();
+				resWidth.setPromptText("Canvas Width");
+				TextField resHeight = new TextField();
+				resHeight.setPromptText("Canvas Height");
+
+				Button changeResButton = new Button("Change Canvas Size");
+				changeResButton.setOnAction(e -> handleChangeRes(controller, mainView, changeResButton, resWidth, resHeight));
+				
         pane = new VBox(12,
                 new Label("Frattale"), fractalSelector,
                 new Label("Palette"), paletteSelector,
                 iterationsLabel, iterationsSlider,
+								resWidth, resHeight,
+								changeResButton,	
                 exportButton,
 								resetButton);
         pane.setPrefWidth(200);
         pane.setStyle("-fx-padding: 16;");
     }
+
+		private void handleChangeRes(FractalController controller, MainView mainView, Button changeResButton, TextField resWidth, TextField resHeight) {
+				 
+				 
+				int width = Integer.parseInt(resWidth.getText()); 
+				int height = Integer.parseInt(resHeight.getText());
+
+				controller.getViewport().setCanvasWidth(width);
+				controller.getViewport().setCanvasHeight(height);
+				mainView.getCanvas().setWidth(width);
+				mainView.getCanvas().setHeight(height);
+				mainView.redraw();
+		}
 
 		private void handleResetZoom(FractalController controller, MainView mainView, Button resetButton) {
 			 

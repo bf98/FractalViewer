@@ -18,8 +18,8 @@ public class Viewport {
     private double centerX;
     private double centerY;
     private double zoom;  
-    private final int canvasWidth;
-    private final int canvasHeight;
+    private int canvasWidth;
+    private int canvasHeight;
 
     public Viewport(double centerX, double centerY, double zoom, int canvasWidth, int canvasHeight) {
         this.centerX = centerX;
@@ -71,13 +71,25 @@ public class Viewport {
         return centerX;
     }
 
+		public void setCenterX(double that) {
+				this.centerX = that;
+		}
+
     public double getCenterY() {
         return centerY;
     }
 
+		public void setCenterY(double that) {
+				this.centerY = that;
+		}
+
     public double getZoom() {
         return zoom;
     }
+
+		public void resetZoom() {
+			this.zoom = 1;
+		}
 
     public int getCanvasWidth() {
         return canvasWidth;
@@ -85,5 +97,22 @@ public class Viewport {
 
     public int getCanvasHeight() {
         return canvasHeight;
+    }
+
+		public void setCanvasWidth(int that) {
+				this.canvasWidth = that;
+		}
+
+		public void setCanvasHeight(int that) {
+				this.canvasHeight = that;
+		}
+
+     
+
+
+
+
+    public Viewport copy() {
+        return new Viewport(centerX, centerY, zoom, canvasWidth, canvasHeight);
     }
 }

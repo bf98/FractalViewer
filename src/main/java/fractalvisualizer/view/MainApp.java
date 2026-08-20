@@ -44,6 +44,8 @@ public class MainApp extends Application {
         Scene scene = new Scene(root, CANVAS_WIDTH + 220, CANVAS_HEIGHT);
         stage.setTitle("FractalViewer");
         stage.setScene(scene);
+				 
+				stage.setResizable(false);
         stage.show();
 
          
