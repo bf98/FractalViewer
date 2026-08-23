@@ -113,6 +113,39 @@ class FractalControllerTest {
         assertEquals(6, (int) image.getHeight());
     }
 
+    @Test
+    void changingCanvasSizeUpdatesViewportThroughController() {
+        Fixture fixture = createFixture();
+
+        fixture.controller.onCanvasSizeChanged(1200, 900);
+
+        assertEquals(1200, fixture.viewport.getCanvasWidth());
+        assertEquals(900, fixture.viewport.getCanvasHeight());
+    }
+
+    @Test
+    void invalidCanvasSizeIsRejected() {
+        Fixture fixture = createFixture();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> fixture.controller.onCanvasSizeChanged(0, 600));
+        assertThrows(IllegalArgumentException.class,
+                () -> fixture.controller.onCanvasSizeChanged(800, -1));
+    }
+
+    @Test
+    void resetViewRestoresInitialCenterAndZoom() {
+        Fixture fixture = createFixture();
+
+        fixture.controller.onScroll(4, 3, 40.0);
+        fixture.controller.onMouseDrag(1.0, 1.0);
+        fixture.controller.onResetView();
+
+        assertEquals(-0.5, fixture.viewport.getCenterX(), EPSILON);
+        assertEquals(0.0, fixture.viewport.getCenterY(), EPSILON);
+        assertEquals(1.0, fixture.viewport.getZoom(), EPSILON);
+    }
+
     private record Fixture(
             FractalRenderer renderer,
             Viewport viewport,
