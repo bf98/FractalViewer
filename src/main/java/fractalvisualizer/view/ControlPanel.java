@@ -10,9 +10,12 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.Integer;
 
  
+
+
+
+
 
 
 
@@ -53,48 +56,71 @@ public class ControlPanel {
         exportButton.setOnAction(e -> handleExport(controller, mainView, exportButton));
 
         Button resetButton = new Button("Reset Zoom");
-        resetButton.setOnAction(e -> handleResetZoom(controller, mainView, resetButton));
+        resetButton.setOnAction(e -> handleResetView(controller, mainView));
 
-				TextField resWidth = new TextField();
-				resWidth.setPromptText("Canvas Width");
-				TextField resHeight = new TextField();
-				resHeight.setPromptText("Canvas Height");
+        TextField resWidth = new TextField();
+        resWidth.setPromptText("Canvas Width");
 
-				Button changeResButton = new Button("Change Canvas Size");
-				changeResButton.setOnAction(e -> handleChangeRes(controller, mainView, changeResButton, resWidth, resHeight));
-				
+        TextField resHeight = new TextField();
+        resHeight.setPromptText("Canvas Height");
+
+        Button changeResButton = new Button("Change Canvas Size");
+        changeResButton.setOnAction(e ->
+                handleChangeResolution(controller, mainView, resWidth, resHeight));
+
         pane = new VBox(12,
                 new Label("Frattale"), fractalSelector,
                 new Label("Palette"), paletteSelector,
                 iterationsLabel, iterationsSlider,
-								resWidth, resHeight,
-								changeResButton,	
+                new Label("Risoluzione Canvas"),
+                resWidth, resHeight,
+                changeResButton,
                 exportButton,
-								resetButton);
+                resetButton
+        );
         pane.setPrefWidth(200);
         pane.setStyle("-fx-padding: 16;");
     }
 
-		private void handleChangeRes(FractalController controller, MainView mainView, Button changeResButton, TextField resWidth, TextField resHeight) {
-				 
-				 
-				int width = Integer.parseInt(resWidth.getText()); 
-				int height = Integer.parseInt(resHeight.getText());
+    private void handleChangeResolution(
+            FractalController controller,
+            MainView mainView,
+            TextField resWidth,
+            TextField resHeight
+    ) {
+        final int width;
+        final int height;
 
-				controller.getViewport().setCanvasWidth(width);
-				controller.getViewport().setCanvasHeight(height);
-				mainView.getCanvas().setWidth(width);
-				mainView.getCanvas().setHeight(height);
-				mainView.redraw();
-		}
+        try {
+            width = Integer.parseInt(resWidth.getText().trim());
+            height = Integer.parseInt(resHeight.getText().trim());
+        } catch (NumberFormatException ex) {
+            showResolutionError("Inserire larghezza e altezza come numeri interi positivi.");
+            return;
+        }
 
-		private void handleResetZoom(FractalController controller, MainView mainView, Button resetButton) {
-			 
-			controller.getViewport().resetZoom();
-			controller.getViewport().setCenterX(-0.5);
-			controller.getViewport().setCenterY(0);
-			mainView.redraw();
-		}
+        try {
+             
+            controller.onCanvasSizeChanged(width, height);
+
+             
+            mainView.setCanvasSize(width, height);
+            mainView.redraw();
+        } catch (IllegalArgumentException ex) {
+            showResolutionError(ex.getMessage());
+        }
+    }
+
+    private void showResolutionError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
+        alert.setHeaderText("Risoluzione non valida");
+        alert.showAndWait();
+    }
+
+    private void handleResetView(FractalController controller, MainView mainView) {
+        controller.onResetView();
+        mainView.redraw();
+    }
 
     private void handleExport(FractalController controller, MainView mainView, Button exportButton) {
         FileChooser fileChooser = new FileChooser();

@@ -184,6 +184,24 @@ public class FractalController {
         renderer.getFractal().setMaxIterations(newMaxIterations);
     }
 
+     
+
+
+
+    public void onCanvasSizeChanged(int width, int height) {
+        viewport.setCanvasSize(width, height);
+    }
+
+     
+
+
+
+    public void onResetView() {
+        viewport.resetZoom();
+        viewport.setCenterX(-0.5);
+        viewport.setCenterY(0.0);
+    }
+
     public void onExportRequested(WritableImage currentImage, File targetFile) throws IOException {
         exportManager.exportToPNG(currentImage, targetFile);
     }

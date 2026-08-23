@@ -1,23 +1,11 @@
 package fractalvisualizer.model;
 
- 
-
-
-
-
-
-
-
-
-
-
-
-
+/** gestisce area visibile, zoom e panning */
 public class Viewport {
 
     private double centerX;
     private double centerY;
-    private double zoom;  
+    private double zoom; 
     private int canvasWidth;
     private int canvasHeight;
 
@@ -29,10 +17,7 @@ public class Viewport {
         this.canvasHeight = canvasHeight;
     }
 
-     
-
-
-
+    /** pixel -> punto piano complesso */
     public Complex pixelToComplex(int px, int py) {
         double scale = 1.0 / zoom;
         double re = centerX + (px - canvasWidth / 2.0) * scale / canvasWidth * 4.0;
@@ -40,26 +25,20 @@ public class Viewport {
         return new Complex(re, im);
     }
 
-     
-
-
-
-
-
-
+    /**
+     * Applica lo zoom sul punto indicato.
+     *
+     * @param factor >1 ingrandisce, <1 riduce
+     */
     public void zoomAt(int px, int py, double factor) {
         Complex targetBefore = pixelToComplex(px, py);
         this.zoom *= factor;
         Complex targetAfter = pixelToComplex(px, py);
 
-         
+        // ferma punto sotto cursore mouse
         this.centerX += targetBefore.getRe() - targetAfter.getRe();
         this.centerY += targetBefore.getIm() - targetAfter.getIm();
     }
-
-     
-
-
 
     public void pan(double dxPixels, double dyPixels) {
         double scale = 1.0 / zoom;
@@ -99,18 +78,24 @@ public class Viewport {
         return canvasHeight;
     }
 
-		public void setCanvasWidth(int that) {
-				this.canvasWidth = that;
-		}
+    public void setCanvasWidth(int that) {
+        setCanvasSize(that, this.canvasHeight);
+    }
 
-		public void setCanvasHeight(int that) {
-				this.canvasHeight = that;
-		}
+    public void setCanvasHeight(int that) {
+        setCanvasSize(this.canvasWidth, that);
+    }
 
-     
+    public void setCanvasSize(int width, int height) {
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException(
+                    "Larghezza e altezza del Canvas devono essere maggiori di zero."
+            );
+        }
 
-
-
+        this.canvasWidth = width;
+        this.canvasHeight = height;
+    }
 
     public Viewport copy() {
         return new Viewport(centerX, centerY, zoom, canvasWidth, canvasHeight);
