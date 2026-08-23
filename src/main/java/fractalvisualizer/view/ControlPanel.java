@@ -11,14 +11,7 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.io.IOException;
 
- 
-
-
-
-
-
-
-
+/** contiene i controlli dell'applicazione */
 public class ControlPanel {
 
     private final VBox pane;
@@ -49,7 +42,7 @@ public class ControlPanel {
             controller.onMaxIterationsChanged(value);
         });
 
-         
+        // redraw al rilascio dello slider
         iterationsSlider.setOnMouseReleased(e -> mainView.redraw());
 
         Button exportButton = new Button("Esporta PNG");
@@ -64,9 +57,12 @@ public class ControlPanel {
         TextField resHeight = new TextField();
         resHeight.setPromptText("Canvas Height");
 
+				Label currentResolutionLabel = new Label();
+
         Button changeResButton = new Button("Change Canvas Size");
         changeResButton.setOnAction(e ->
-                handleChangeResolution(controller, mainView, resWidth, resHeight));
+                handleChangeResolution(controller, mainView, resWidth, resHeight, currentResolutionLabel));
+
 
         pane = new VBox(12,
                 new Label("Frattale"), fractalSelector,
@@ -75,6 +71,7 @@ public class ControlPanel {
                 new Label("Risoluzione Canvas"),
                 resWidth, resHeight,
                 changeResButton,
+								currentResolutionLabel,
                 exportButton,
                 resetButton
         );
@@ -82,11 +79,20 @@ public class ControlPanel {
         pane.setStyle("-fx-padding: 16;");
     }
 
+		private void updateResolutionLabel(Label label, FractalController controller) {
+			label.setText("Risolutione attuale: "
+										+ controller.getCurrentCanvasWidth()
+										+ " x "
+										+ controller.getCurrentCanvasHeight()
+						);
+		}
+
     private void handleChangeResolution(
             FractalController controller,
             MainView mainView,
             TextField resWidth,
-            TextField resHeight
+            TextField resHeight,
+						Label currentResolutionLabel
     ) {
         final int width;
         final int height;
@@ -100,11 +106,14 @@ public class ControlPanel {
         }
 
         try {
-             
+            // update model
             controller.onCanvasSizeChanged(width, height);
 
-             
+            // update view
             mainView.setCanvasSize(width, height);
+
+						updateResolutionLabel(currentResolutionLabel, controller);
+
             mainView.redraw();
         } catch (IllegalArgumentException ex) {
             showResolutionError(ex.getMessage());
@@ -131,8 +140,7 @@ public class ControlPanel {
             return;
         }
 
-         
-         
+        // esporta immagine visualizzata
         WritableImage currentImage = mainView.getCurrentImage();
         if (currentImage == null) {
             Alert alert = new Alert(

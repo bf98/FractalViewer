@@ -11,24 +11,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
- 
-
-
-
-
-
-
-
+/** gestisce le azioni dell'utente e il rendering */
 public class FractalController {
 
     private final FractalRenderer renderer;
     private final Viewport viewport;
     private final ExportManager exportManager;
 
-     
-
-
-
+    /** esegue il rendering in un thread separato */
     private final ThreadPoolExecutor renderExecutor;
 
     private Task<RenderResult> currentTask;
@@ -53,10 +43,7 @@ public class FractalController {
         );
     }
 
-     
-
-
-
+    /** crea un'immagine in modo sincrono */
     public WritableImage renderCurrentFrame() {
         return renderer.renderFrame(
                 viewport,
@@ -65,17 +52,7 @@ public class FractalController {
         );
     }
 
-     
-
-
-
-
-
-
-
-
-
-
+    /** avvia un nuovo rendering in background */
     public void renderCurrentFrameAsync(
             Consumer<WritableImage> onSuccess,
             Consumer<Throwable> onError
@@ -108,7 +85,7 @@ public class FractalController {
         currentTask = task;
 
         task.setOnSucceeded(event -> {
-             
+            // ignora i risultati superati
             if (generation != renderGeneration) {
                 return;
             }
@@ -136,11 +113,15 @@ public class FractalController {
         renderExecutor.execute(task);
     }
 
-     
+		public int getCurrentCanvasWidth() {
+			return viewport.getCanvasWidth();
+		}
 
+		public int getCurrentCanvasHeight() {
+			return viewport.getCanvasHeight();
+		}
 
-
-
+    /** annulla i rendering superati */
     private void cancelPreviousRendering() {
         if (currentTask != null && !currentTask.isDone()) {
             currentTask.cancel(true);
@@ -184,18 +165,12 @@ public class FractalController {
         renderer.getFractal().setMaxIterations(newMaxIterations);
     }
 
-     
-
-
-
+    /** aggiorna risoluzione canvas */
     public void onCanvasSizeChanged(int width, int height) {
         viewport.setCanvasSize(width, height);
     }
 
-     
-
-
-
+    /** ripristina vista iniziale */
     public void onResetView() {
         viewport.resetZoom();
         viewport.setCenterX(-0.5);
@@ -206,9 +181,7 @@ public class FractalController {
         exportManager.exportToPNG(currentImage, targetFile);
     }
 
-     
-
-
+    /** ferma il worker */
     public void shutdown() {
         ++renderGeneration;
         cancelPreviousRendering();
