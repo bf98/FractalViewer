@@ -17,6 +17,22 @@ java {
     }
 }
 
+jar {
+		manifest {
+				attributes (
+						'Main-Class': 'fractalvisualizer.Launcher'
+				)
+		}
+
+		duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+		from {
+				configurations.runtimeClasspath.collect {
+						it.isDirectory() ? it : zipTree(it)
+				}
+		}
+}
+
 javafx {
     version = '21.0.2'
     modules = [ 'javafx.controls', 'javafx.swing' ]
@@ -29,7 +45,8 @@ dependencies {
 }
 
 application {
-    mainClass = 'fractalvisualizer.view.MainApp'
+    //mainClass = 'fractalvisualizer.view.MainApp'
+    mainClass = 'fractalvisualizer.Launcher'
 }
 
 tasks.withType(JavaCompile).configureEach {
