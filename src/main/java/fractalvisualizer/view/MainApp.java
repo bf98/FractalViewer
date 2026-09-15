@@ -10,8 +10,8 @@ import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
-    private static final int CANVAS_WIDTH = 1280;
-    private static final int CANVAS_HEIGHT = 728;
+    private static final int CANVAS_WIDTH = 640;
+    private static final int CANVAS_HEIGHT = 480;
     private static final int DEFAULT_MAX_ITERATIONS = 800;
 
     private static final int WINDOW_WIDTH = 1100;

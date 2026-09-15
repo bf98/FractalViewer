@@ -512,7 +512,7 @@ gradlew.bat run
 
 ## Utilizzo
 
-All'avvio, l'applicazione mostra l'insieme di Mandelbrot con palette "Rainbow", 800 iterazioni massime e una risoluzione di 1280×728 pixel. Da qui è possibile:
+All'avvio, l'applicazione mostra l'insieme di Mandelbrot con palette "Rainbow", 800 iterazioni massime e una risoluzione di 640x480 pixel. Da qui è possibile:
 
 - **Cambiare frattale o palette** dai rispettivi menu a tendina nel pannello laterale.
 - **Regolare il dettaglio del calcolo** trascinando lo slider delle iterazioni (intervallo 50–1000); il nuovo rendering parte al rilascio del mouse.
