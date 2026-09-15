@@ -19,9 +19,9 @@ public class Viewport {
 
     /** pixel -> punto piano complesso */
     public Complex pixelToComplex(int px, int py) {
-        double scale = 1.0 / zoom;
-        double re = centerX + (px - canvasWidth / 2.0) * scale / canvasWidth * 4.0;
-        double im = centerY + (py - canvasHeight / 2.0) * scale / canvasHeight * 4.0;
+				double scalePerPixel = 4.0 / (zoom * canvasWidth);
+        double re = centerX + (px - canvasWidth / 2.0) * scalePerPixel;
+        double im = centerY + (py - canvasHeight / 2.0) * scalePerPixel;
         return new Complex(re, im);
     }
 
@@ -41,9 +41,9 @@ public class Viewport {
     }
 
     public void pan(double dxPixels, double dyPixels) {
-        double scale = 1.0 / zoom;
-        centerX -= dxPixels * scale / canvasWidth * 4.0;
-        centerY -= dyPixels * scale / canvasHeight * 4.0;
+        double scalePerPixel = 4.0 / (zoom * canvasWidth);
+        centerX -= dxPixels * scalePerPixel;
+        centerY -= dyPixels * scalePerPixel;
     }
 
     public double getCenterX() {

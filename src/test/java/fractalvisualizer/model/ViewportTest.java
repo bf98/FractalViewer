@@ -25,7 +25,7 @@ class ViewportTest {
         Complex point = viewport.pixelToComplex(0, 0);
 
         assertEquals(-2.5, point.getRe(), EPSILON);
-        assertEquals(-2.0, point.getIm(), EPSILON);
+        assertEquals(-1.5, point.getIm(), EPSILON);
     }
 
     @Test
@@ -50,6 +50,6 @@ class ViewportTest {
         viewport.pan(80.0, 60.0);
 
         assertEquals(-0.9, viewport.getCenterX(), EPSILON);
-        assertEquals(-0.4, viewport.getCenterY(), EPSILON);
+        assertEquals(-0.3, viewport.getCenterY(), EPSILON);
     }
 }
